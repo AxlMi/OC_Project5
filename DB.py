@@ -47,12 +47,12 @@ class Database:
     def create_table(self,):
         table_product = """CREATE TABLE IF NOT EXISTS product (
             id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
-            Product_name VARCHAR(30) NOT NULL,
-            Categories VARCHAR(30) NOT NULL,
-            Nutrition_grade CHAR(1),
-            Brands VARCHAR(30),
-            Stores VARCHAR(30),
-            url TEXT(80),
+            Product_name TINYTEXT NOT NULL,
+            Categories TEXT NOT NULL,
+            Nutrition_grade VARCHAR(1),
+            Brands TINYTEXT,
+            Stores TINYTEXT,
+            url_product TINYTEXT,
             PRIMARY KEY (id)
             )
             ENGINE=INNODB;"""

@@ -3,60 +3,33 @@
 
 import requests
 import json
-import mysql.connector
+import mysql.connector        
 
-class import_db:
-
-    def connect(self,):
-        self.mydb = mysql.connector.connect(
-            host="localhost",
-            user='StudentOF',
-            passwd='1Ksable$',
-            database="openfoodfact")
-        self.mycursor = self.mydb.cursor()
-        
-
-    for i in range(1, 2):
-        products = requests.get("https://world.openfoodfacts.org/cgi/search.pl",{
-                    'action': 'process',
-                    'tagtype_0': 'categories', #categories selected
-                    'tag_contains_0': 'contains', #contains or not
-                    'sort_by': 'unique_scans_n',
-                    'countries': 'France',
-                    'json': 1,
-                    'page': 553444000,
-                    'page_size' : 100
-                    })
+for i in range(1, 1000):
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user='StudentOF',
+        passwd='1Ksable$',
+        database="openfoodfact")
+    mycursor = mydb.cursor()
     
-        #def add_values(key, type_key, values, values_key)
-         #   self.connect()
-      #mycursor.execute("CREATE TABLE product (name VARCHAR(255), address VARCHAR(255))")
+    products = requests.get("https://world.openfoodfacts.org/cgi/search.pl",{
+                'action': 'process',
+                'tagtype_0': 'categories', #categories selected
+                'tag_contains_0': 'contains', #contains or not
+                'sort_by': 'unique_scans_n',
+                'countries': 'France',
+                'json': 1,
+                'page': 553444000,
+                'page_size' : 100
+                })
+    
+    response = json.loads(products.text)
+    
+    for product in response['products']:
+        #print(product['nutrition_grades'])
+        sql = "INSERT INTO product (Product_name, Categories, Nutrition_grade, Brands, Stores, url_product) VALUES (%s, %s, %s, %s, %s, %s)"
+        val = (product['product_name'], product['categories'], "a", product['brands'], product['stores'], product['url'])
+        mycursor.execute(sql, val)
+        mydb.commit()
 
-        
-        response = json.loads(products.text)
-        
-        for product in response['products']:
-            print(product['product_name'])
-            #for key, values in product.items():
-               # print('{} {}'.format(key, values))
-
-        def create_table(self,):
-            self.connect()
-            mycursor.execute("CREATE TABLE product (name VARCHAR(255), address VARCHAR(255))")
-
-
-    #with open('dataok.json', 'w') as f:
-     #   f.write(y)
-
-    #print(x)
-    #with open('datatest.json', 'w')as f:
-     #   f.write(json.dumps(products.text, indent=50))
-   # response = json.loads(products.text)
-    #print(response)
-    #print(response)
-
-    #for product in response['products']:
-        # ajouter produits voulu sur sql
-     #   final_products.append({
-      #      'code': product['code']
-       # })
