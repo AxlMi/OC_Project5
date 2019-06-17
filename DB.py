@@ -46,13 +46,13 @@ class Database:
 
     def create_table(self,):
         table_product = """CREATE TABLE IF NOT EXISTS product (
-            id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            id INT AUTO_INCREMENT,
             Product_name TINYTEXT NOT NULL,
-            Categories TEXT NOT NULL,
-            Nutrition_grade VARCHAR(1),
+            Categories TEXT,
+            Nutrition_grade VARCHAR(5),
             Brands TINYTEXT,
             Stores TINYTEXT,
-            url_product TINYTEXT,
+            url_product TEXT,
             PRIMARY KEY (id)
             )
             ENGINE=INNODB;"""
@@ -64,8 +64,10 @@ def main():
     DB.connect_with_user(input('entrez votre nom d\'utilisateur mysql : '),
     input('entrez votre MDP : '), '')
     DB.create_user()
-    DB.connect_with_user('StudentOF', '1Ksable$', 'openfoodfact')
+    DB.connect_with_user('StudentOF', '1Ksable$', '')
     DB.create_db()
+    DB.connect_with_user('StudentOF', '1Ksable$', 'openfoodfact')
     DB.create_table()
     
-main()
+if __name__ == "__main__":
+    main()
