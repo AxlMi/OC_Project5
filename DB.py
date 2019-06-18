@@ -51,7 +51,7 @@ class Database:
             Categories TEXT,
             Nutrition_grade VARCHAR(5),
             Brands TINYTEXT,
-            Stores TINYTEXT,
+            Stores TEXT,
             url_product TEXT,
             PRIMARY KEY (id)
             )

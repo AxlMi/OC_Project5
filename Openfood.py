@@ -27,7 +27,7 @@ class download_api:
             response = json.loads(products.text)
             for product in response['products']:
                 #print(product['nutrition_grade_fr'])
-                if product.get("product_name") is not None and product.get("categories") is not None:
+                if product.get("product_name") is not None and product.get("categories") is not None and product.get("categories") != "":
                     sql = "INSERT INTO product (Product_name, Categories, Nutrition_grade, Brands, Stores, url_product) VALUES (%s, %s, %s, %s, %s, %s)"
                     val = (product.get('product_name'), product.get('categories'), product.get('nutrition_grade_fr'), product.get('brands'), product.get('stores'), product['url'])
                     db.mycursor.execute(sql, val)
@@ -37,16 +37,17 @@ class download_api:
             #    f.write(json.dumps(response, indent=4))
 
     def thread_api(self, number_page):
-        page_thread = int(number_page / 4)
+        nb_thread = 10
+        page_thread = int(number_page / nb_thread)
+        index_start_thread = 0
+        index_end_thread = page_thread
+        for i in range(1, nb_thread):
+            thread_downapi = threading.Thread(target=self.downapi, args=(index_start_thread, index_end_thread))
+            thread_downapi.start()
+            index_start_thread += page_thread
+            index_end_thread += page_thread
+            print(index_end_thread)
 
-        first_thread = threading.Thread(target=self.downapi, args=(0, page_thread))
-        second_thread = threading.Thread(target=self.downapi, args=(page_thread, page_thread * 2))
-        third_thread = threading.Thread(target=self.downapi, args=(page_thread * 2, page_thread * 3))
-        fourth_thread = threading.Thread(target=self.downapi, args=(page_thread * 3, number_page))
-        first_thread.start()
-        second_thread.start()
-        third_thread.start()
-        fourth_thread.start()
         
 
 DAP = download_api()
