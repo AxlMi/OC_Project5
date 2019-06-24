@@ -18,7 +18,6 @@ class Database:
             passwd=passw,
             database=db,)
             self.mycursor = self.mydb.cursor()
-            print('Connexion à {}'.format(user_acc))
         except mysql.connector.errors.ProgrammingError: 
             print("votre nom d'utilisateur ou mot de passe est incorrect")
 
@@ -53,6 +52,7 @@ class Database:
             Brands TINYTEXT,
             Stores TEXT,
             url_product TEXT,
+            save_product TINYINT(1),
             PRIMARY KEY (id)
             )
             ENGINE=INNODB;"""

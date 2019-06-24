@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # coding: utf-8
-from DB import Database
+from Create_database import Database
 import requests
 import json
 import mysql.connector        
@@ -27,8 +27,8 @@ class download_api:
             response = json.loads(products.text)
             for product in response['products']:
                 #print(product['nutrition_grade_fr'])
-                if product.get("product_name") is not None and product.get("categories") is not None and product.get("categories") != "":
-                    sql = "INSERT INTO product (Product_name, Categories, Nutrition_grade, Brands, Stores, url_product) VALUES (%s, %s, %s, %s, %s, %s)"
+                if product.get("product_name") is not None and product.get("categories") and product.get("product_name") != "" is not None and product.get("categories") != "":
+                    sql = "INSERT INTO product (Product_name, Categories, Nutrition_grade, Brands, Stores, url_product, save_product) VALUES (%s, %s, %s, %s, %s, %s, 0)"
                     val = (product.get('product_name'), product.get('categories'), product.get('nutrition_grade_fr'), product.get('brands'), product.get('stores'), product['url'])
                     db.mycursor.execute(sql, val)
                     db.mydb.commit()
@@ -51,5 +51,5 @@ class download_api:
         
 
 DAP = download_api()
-DAP.thread_api(1000)
+DAP.thread_api(500)
 

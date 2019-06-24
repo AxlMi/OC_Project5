@@ -1,47 +1,43 @@
 #! /usr/bin/env python
 # coding: utf-8
 import mysql.connector
-from DB import Database
+from Constant import *
+from Create_database import *
+from function import *
 
-class Menu:
+menu = Menu()
 
-
-    def select_choice(self):
-        self.choice = None
-        while self.choice is None:
-            self.choice = input("1- Quel aliment souhaitez-vous remplacer ?\n2 - Retrouver mes aliments substitués. ")
-            try:
-                self.choice = int(self.choice)
-            except:
-                print("vous n'avez pas entrez une valeur correspondante")
-                self.choice = None
-        return self.choice
-
-
-    def select_categorie(self):
-        self.choice_categorie = None
-        while self.choice_categorie is None:
-            self.choice_categorie = input("""choisir votre catégorie : \n
-                                    1 - Fruits et légumes \n
-                                    2 - Viandes \n
-                                    3 - Poissons \n
-                                    4 - Biscuit et gateaux \n
-                                    5 - Sandwich \n
-                                    6 - Produit laitiers \n
-                                    7 - Fromage \n
-                                    8 - Chocolats \n
-                                    9 - Boissons \n
-                                    0 - Autres \n""")
-            try:
-                self.choice_categorie = int(self.choice_categorie)
-            except:
-                print("vous n'avez pas entrez une valeur correspondante")
-                self.choice_categorie = None
-        return self.choice_categorie
-
-        
-
+def function_interface():
+    if menu.choice_categorie != 0:
+        menu.display_list()
+        if menu.choice_alim == 0:
+            menu.choice_categorie
+        elif menu.choice_alim == 1:
+            pass # faire l'alternative autres
+        else:
+            menu.display_aliment()
+            if menu.last_choice == 1:
+                pass # trouver substitut
+            if menu.last_choice == 2:
+                pass #save aliment
+            if menu.last_choice == 3:
+                menu.display_list
+        menu.list_aliment[:] = [] # remove all list aliment
+    menu.choice_categorie = None
+    menu.choice_alim = None
+    menu.choice = None
     
+def interface():
+    while menu.choice != 0:
+        menu.select_choice()
+        if menu.choice == 1:
+            menu.select_categorie()
+            function_interface()
+        elif menu.choice == 2:
+            menu.display_save() #retrouver aliments substitués
+            function_interface()           
 
-test = Menu()
-test.select_categorie()
+interface()
+
+
+
