@@ -24,7 +24,7 @@ class Menu:
             except:
                 print("vous n'avez pas entrez une valeur correspondante")
                 self.choice = None
-        return self.choice
+            return self.choice
 
 
     def select_categorie(self):
@@ -39,8 +39,8 @@ class Menu:
         return self.choice_categorie
 
     def display_list(self,):
+        self.choice_alim = None
         while self.choice_alim is None:
-            self.choice_alim = None
             self.db.connect_with_user(user_acc="StudentOF", passw="1Ksable$", db="openfoodfact")
             self.db.mycursor.execute("SELECT product_name FROM product WHERE categories LIKE %s ORDER BY RAND() LIMIT 8",
             (categories[str(self.choice_categorie)]+"%",))
@@ -106,8 +106,8 @@ class Menu:
         self.db.mycursor.execute("SELECT product_name FROM product WHERE product_name LIKE %s LIMIT 10", ("%"+name_aliment+"%",))
         my_result = self.db.mycursor.fetchall()
         self.choice_list(my_result)
-        print(self.list_aliment)
-        self.display_aliment()
+        if self.choice_alim != 1 and self.choice_alim != 0:
+            self.display_aliment()
 
 
     def display_save(self):
@@ -118,6 +118,7 @@ class Menu:
 
     def substitute(self, categ_susbtitute, id_substitute, name_product):
             myresult = []
+            self.list_aliment[:] = []
             while myresult == []:
                 cat_modif = categ_susbtitute
                 sql_substitute = "SELECT product_name FROM product WHERE Categories = %s AND id <> %s AND product_name <> %s LIMIT 1"
@@ -136,7 +137,9 @@ class Menu:
                     nb +=1
                 if len(myresult) != 0:
                     print("voici une liste des aliments substitué")
-                    self.choice_list(myresult)
+                    for x in myresult:
+                        self.list_aliment.append(x)
+                        self.choice_alim = 0
                     self.display_aliment()
                 elif nb > 10:
                         print("nous n'avons pas trouvé d'aliment substitué")
