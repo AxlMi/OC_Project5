@@ -101,7 +101,6 @@ class Menu:
     def list_other_aliment(self,):
         self.list_aliment[:] = [] # remove all list aliment
         name_aliment = input("quel aliment recherchez vous ?")
-        print(self.list_aliment)
         self.db.connect_with_user(user_acc="StudentOF", passw="1Ksable$", db="openfoodfact")
         self.db.mycursor.execute("SELECT product_name FROM product WHERE product_name LIKE %s LIMIT 10", ("%"+name_aliment+"%",))
         my_result = self.db.mycursor.fetchall()

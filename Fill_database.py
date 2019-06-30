@@ -9,7 +9,7 @@ import threading
 
 class download_api:
     
-    def downapi(self, start, end):
+    def downapi(self, start, end, nom):
         db = Database()
         db.connect_with_user(user_acc="StudentOF", passw="1Ksable$", db="openfoodfact")
         for i in range(start, end):
@@ -23,7 +23,8 @@ class download_api:
                         'page': i,
                         'page_size' : 1000
                         })
-            print("Chargement {} %".format((i/end)*100))
+            if nom == "Thread 1":
+                print("chargement en cours {} %, veuillez patienter..".format((i*100/self.page_thread)))
             response = json.loads(products.text)
             for product in response['products']:
                 #print(product['nutrition_grade_fr'])
@@ -32,24 +33,26 @@ class download_api:
                     val = (product.get('product_name'), product.get('categories'), product.get('nutrition_grade_fr'), product.get('brands'), product.get('stores'), product['url'])
                     db.mycursor.execute(sql, val)
                     db.mydb.commit()
+        if nom == "Thread 1":
+            print("chargement terminé")
 
                 #with open("test1page.json", "w") as f:
             #    f.write(json.dumps(response, indent=4))
 
     def thread_api(self, number_page):
         nb_thread = 10
-        page_thread = int(number_page / nb_thread)
+        self.page_thread = int(number_page / nb_thread)
         index_start_thread = 0
-        index_end_thread = page_thread
+        index_end_thread = self.page_thread
         for i in range(1, nb_thread):
-            thread_downapi = threading.Thread(target=self.downapi, args=(index_start_thread, index_end_thread))
+            thread_downapi = threading.Thread(target=self.downapi, args=(index_start_thread, index_end_thread, "Thread {}".format(i)))
             thread_downapi.start()
-            index_start_thread += page_thread
-            index_end_thread += page_thread
-            print(index_end_thread)
+            index_start_thread += self.page_thread
+            index_end_thread += self.page_thread
+            print("Thread {} lancé".format(i))
 
         
 
 DAP = download_api()
-DAP.thread_api(500)
+DAP.thread_api(1000)
 
