@@ -34,10 +34,9 @@ categories = {
 
 # FORMAT FOR DISPLAY ALIMENT
 
-format_aliment = """Nom du produit : {} 
+format_aliment = """\n                    Nom du produit : {}\n
                     Lien url : {} \n
                     Catégories : {} \n
                     Score nutritionnel : {} \n
-                    Magasins où le produit est en vente : {} \n
-            """
+                    Magasins où le produit est en vente : {} \n"""
 
