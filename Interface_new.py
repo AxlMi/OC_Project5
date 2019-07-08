@@ -6,9 +6,8 @@ from Create_database import *
 from function import *
 
 
-
-
 def main_interface():
+    db = Database()
     menu = Menu()
     end_interface = 1
     while end_interface:
@@ -36,10 +35,13 @@ def main_interface():
                 elif menu.choice_alim == 1:
                     menu.list_other_aliment()
             else:
-                menu.display_aliment() 
+                menu.display_aliment()
         elif menu.choice == 0:
+            menu.db.mycursor.close()
+            menu.db.mydb.close()
             break
 
 main_interface()
-        
-    
+
+if __name__ == "__main_interface__":
+    main()
