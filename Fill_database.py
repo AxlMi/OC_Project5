@@ -5,7 +5,7 @@ import requests
 import json
 import mysql.connector
 import threading
-import os
+from os import system
 
 
 class download_api:
@@ -40,24 +40,36 @@ class download_api:
                         and product.get("nutrition_grade_fr")\
                         is not None and product.get("product_name")\
                         != "" and product.get("categories") != ""\
-                        and product.get("nutrition_grade_fr") != "": #
-                    sql = "INSERT INTO product (
+                        and product.get("nutrition_grade_fr") != "":
+                    product_cat = product.get("categories")
+                    product_cat = product_cat.split(",")
+                    product_cat = ",".join(product_cat[:8])
+                    try:
+                        db.mycursor.execute("INSERT INTO cat_product (Categories) VALUES (%s)", (product_cat, ))
+                        db.mydb.commit()
+                    except mysql.connector.errors.IntegrityError:
+                        pass
+                    except mysql.connector.errors.DataError:
+                        continue
+                    db.mycursor.execute("SELECT ID FROM cat_product WHERE Categories = %s", (product_cat, ))
+                    my_result = db.mycursor.fetchone()
+                    sql = """INSERT INTO product (
                         Product_name,
-                        Categories,
+                        Categories_id,
                         Nutrition_grade,
                         Brands,
                         Stores,
                         url_product,
-                        save_product) VALUES (%s, %s, %s, %s, %s, %s, 0)"
+                        save_product) VALUES (%s, %s, %s, %s, %s, %s, 0)"""
                     val = (
                         product.get('product_name'),
-                        product.get('categories'),
+                        my_result[0],
                         product.get('nutrition_grade_fr'),
                         product.get('brands'),
                         product.get('stores'),
                         product['url'])
-                    db.mycursor.execute(sql, val)
-                    db.mydb.commit()
+                    db.mycursor.execute(sql, val,)
+                    db.mydb.commit()   
         # to indicate the end of download
         if nom == "Thread 1":
             os.system("cls")
@@ -67,6 +79,7 @@ class download_api:
         Need to indicate the number page at download 
         and the number of threads you want to run"""
     def thread_api(self, number_page):
+        # choice the number of thread
         nb_thread = 10
         self.page_thread = int(number_page / nb_thread)
         index_start_thread = 0

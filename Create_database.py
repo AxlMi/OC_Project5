@@ -49,21 +49,31 @@ class Database:
         print("Création de la base de données")
 
     def create_table(self,):
+        table_cat_product = """CREATE TABLE IF NOT EXISTS cat_product (
+            id INT AUTO_INCREMENT,
+            Categories VARCHAR(255) UNIQUE,
+            PRIMARY KEY (id)
+            )
+            ENGINE=INNODB;"""
+        self.mycursor.execute(table_cat_product)
+        print('la table cat_product a été crée')
+
         table_product = """CREATE TABLE IF NOT EXISTS product (
             id INT AUTO_INCREMENT,
             Product_name TINYTEXT NOT NULL,
-            Categories TEXT,
+            Categories_id INT DEFAULT 0 NOT NULL,
             Nutrition_grade VARCHAR(5) NOT NULL,
             Brands TINYTEXT,
             Stores TEXT,
             url_product TEXT,
             save_product TINYINT(1),
-            PRIMARY KEY (id)
+            PRIMARY KEY (id),
+            CONSTRAINT fk_numero_categorie FOREIGN KEY(Categories_id) REFERENCES cat_product(id)
             )
             ENGINE=INNODB;"""
         self.mycursor.execute(table_product)
         print('la table Product a été crée')
-
+        
         
 
 # main function to know the information of the user 
@@ -77,8 +87,8 @@ def main():
     DB.connect_with_user('StudentOF', '1Ksable$', 'openfoodfact')
     DB.create_table()
     print("fermeture de la base de données")
-    self.mycursor.close()
-    self.mydb.close()
+    DB.mycursor.close()
+    DB.mydb.close()
 
 
 if __name__ == "__main__":
