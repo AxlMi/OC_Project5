@@ -1,14 +1,14 @@
 #! /usr/bin/env python
 # coding: utf-8
-from Create_database import Database
+from create_database import *
 import requests
 import json
 import mysql.connector
 import threading
-from os import system
+import os
 
 
-class download_api:
+class DownloadApi:      
 
     def downapi(self, start, end, nom):
         db = Database()
@@ -30,10 +30,13 @@ class download_api:
                             })
             # to indicate the time of download
             if nom == "Thread 1":
-                os.system("cls")
+                if os.name == "nt":
+                    os.system("cls")
+                else:
+                    os.system("clear")
                 print("chargement en cours {} %, veuillez patienter..".format((i*100/self.page_thread)))
             response = json.loads(products.text)
-            # this condition makes it possible not to take the empty information
+            # this condition makes it possible not to take the empty informatio
             for product in response['products']:
                 if product.get("product_name") is not None\
                     and product.get("categories") is not None\
@@ -45,13 +48,16 @@ class download_api:
                     product_cat = product_cat.split(",")
                     product_cat = ",".join(product_cat[:8])
                     try:
-                        db.mycursor.execute("INSERT INTO cat_product (Categories) VALUES (%s)", (product_cat, ))
+                        db.mycursor.execute("INSERT INTO cat_product (Categories)\
+                            VALUES (%s)", (product_cat, ))
                         db.mydb.commit()
                     except mysql.connector.errors.IntegrityError:
                         pass
                     except mysql.connector.errors.DataError:
                         continue
-                    db.mycursor.execute("SELECT ID FROM cat_product WHERE Categories = %s", (product_cat, ))
+                    db.mycursor.execute("SELECT ID\
+                        FROM cat_product\
+                        WHERE Categories = %s", (product_cat, ))
                     my_result = db.mycursor.fetchone()
                     sql = """INSERT INTO product (
                         Product_name,
@@ -69,18 +75,20 @@ class download_api:
                         product.get('stores'),
                         product['url'])
                     db.mycursor.execute(sql, val,)
-                    db.mydb.commit()   
+                    db.mydb.commit()
         # to indicate the end of download
         if nom == "Thread 1":
             os.system("cls")
             print("chargement terminé")
-    """ this method will launch several threads to 
+            db.mydb.close()
+
+    """ this method will launch several threads to
         speed up the downloading of information.
-        Need to indicate the number page at download 
+        Need to indicate the number page at download
         and the number of threads you want to run"""
     def thread_api(self, number_page):
         # choice the number of thread
-        nb_thread = 10
+        nb_thread = 8
         self.page_thread = int(number_page / nb_thread)
         index_start_thread = 0
         index_end_thread = self.page_thread
@@ -96,5 +104,5 @@ class download_api:
             index_end_thread += self.page_thread
 
 
-DAP = download_api()
-DAP.thread_api(1000)
+DAP = DownloadApi()
+DAP.thread_api(10)

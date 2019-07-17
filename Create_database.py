@@ -28,7 +28,7 @@ class Database:
 
     def create_user(self,):
         try:
-            # create 3 variables for create user , allowed privilege and actualize
+            # create 3 variables for create user allowed privilege and actualiz
             user = "CREATE USER 'StudentOF'@'localhost'\
                     IDENTIFIED BY '1Ksable$';"
             privilege = "GRANT ALL PRIVILEGES ON * . *\
@@ -68,19 +68,20 @@ class Database:
             url_product TEXT,
             save_product TINYINT(1),
             PRIMARY KEY (id),
-            CONSTRAINT fk_numero_categorie FOREIGN KEY(Categories_id) REFERENCES cat_product(id)
+            CONSTRAINT fk_numero_categorie\
+            FOREIGN KEY(Categories_id)\
+            REFERENCES cat_product(id)
             )
             ENGINE=INNODB;"""
         self.mycursor.execute(table_product)
         print('la table Product a été crée')
-        
-        
 
-# main function to know the information of the user 
+
+# main function to know the information of the user
 def main():
     DB = Database()
     DB.connect_with_user(input('entrez votre nom d\'utilisateur mysql : '),
-    input('entrez votre MDP : '), '')
+                         input('entrez votre MDP : '), '')
     DB.create_user()
     DB.connect_with_user('StudentOF', '1Ksable$', '')
     DB.create_db()
