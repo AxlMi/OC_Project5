@@ -105,4 +105,4 @@ class DownloadApi:
 
 
 DAP = DownloadApi()
-DAP.thread_api(10)
+DAP.thread_api(100)

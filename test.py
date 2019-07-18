@@ -9,9 +9,12 @@ import os
 
 class DownloadApi:        
 
+    def connect(self):
+        pass
+
     def downapi(self, start, end, nom):
-        self.db = Database()
-        self.db.connect_with_user(
+        db = Database()
+        db.connect_with_user(
             user_acc="StudentOF",
             passw="1Ksable$",
             db="openfoodfact")
@@ -25,12 +28,17 @@ class DownloadApi:
                             'countries': 'France',
                             'json': 1,
                             'page': i,
-                            'page_size': 1000
+                            'page_size': 100
                             })
             response = json.loads(products.text)
             self.fill_db(response)
     
     def fill_db(self, response):
+        db = Database()
+        db.connect_with_user(
+            user_acc="StudentOF",
+            passw="1Ksable$",
+            db="openfoodfact")
         for product in response['products']:
             if product.get("product_name") is not None\
                 and product.get("categories") is not None\
@@ -56,19 +64,29 @@ class DownloadApi:
                     product.get('brands'),
                     product.get('stores'),
                     product['url'])
-                self.db.mycursor.execute(sql, val,)
-                self.db.mydb.commit()
+                db.mycursor.execute(sql, val,)
+                db.mydb.commit()
         
     def research_id(self, table, column, value):
-        print(value)
-        self.db.mycursor.execute("SELECT ID FROM " + table + " WHERE " + column + " = %s", (value, ))
-        my_result = self.db.mycursor.fetchone()
+        db = Database()
+        db.connect_with_user(
+            user_acc="StudentOF",
+            passw="1Ksable$",
+            db="openfoodfact")
+        db.mycursor.execute("SELECT ID FROM " + table + " WHERE " + column + " = %s", (value, ))
+        my_result = db.mycursor.fetchone()
         return my_result[0]
 
     def fill_table(self, table, column, value):
+        db = Database()
+        db.connect_with_user(
+            user_acc="StudentOF",
+            passw="1Ksable$",
+            db="openfoodfact")
+        print(value)
         try:
-            self.db.mycursor.execute("INSERT INTO " + table + " (" + column + ") VALUE (%s)", (value, ))
-            self.db.mydb.commit()
+            db.mycursor.execute("INSERT INTO " + table + " (" + column + ") VALUE (%s)", (value, ))
+            db.mydb.commit()
         except mysql.connector.errors.IntegrityError:
             pass
         except mysql.connector.errors.DataError:

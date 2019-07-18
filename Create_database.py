@@ -12,6 +12,7 @@ class Database:
     def connect_with_user(self, user_acc, passw, db):
         try:
             self.mydb = mysql.connector.connect(
+                                                connect_timeout = 6000,
                                                 host="localhost",
                                                 user=user_acc,
                                                 passwd=passw,
