@@ -16,7 +16,7 @@ class Database:
                                                 user=user_acc,
                                                 passwd=passw,
                                                 database=db,)
-            self.mycursor = self.mydb.cursor()
+            self.mycursor = self.mydb.cursor(buffered=True)
         except mysql.connector.errors.ProgrammingError:
             print("votre nom d'utilisateur ou mot de passe est incorrect")
         except Exception as e:
@@ -76,6 +76,11 @@ class Database:
         self.mycursor.execute(table_product)
         print('la table Product a été crée')
 
+        def exit_db():
+            if self.mycursor and self.mydb:
+                self.mycursor.close()                      
+                self.mydb.close()
+
 
 # main function to know the information of the user
 def main():
@@ -88,8 +93,7 @@ def main():
     DB.connect_with_user('StudentOF', '1Ksable$', 'openfoodfact')
     DB.create_table()
     print("fermeture de la base de données")
-    DB.mycursor.close()
-    DB.mydb.close()
+    DB.exit_db()
 
 
 if __name__ == "__main__":
