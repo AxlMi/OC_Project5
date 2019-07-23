@@ -39,13 +39,11 @@ class Menu:
             except ValueError:
                 print("vous n'avez pas un nombre correspondant")
                 self.choice = ""
-            #self.clear_menu()
+            self.clear_menu()
             if self.choice == 1:
                 self.select_categorie()
-                break
             elif self.choice == 2:
                 self.display_save()
-                break
             elif self.choice == 0:
                 sys.exit()
             else:
@@ -62,7 +60,7 @@ class Menu:
             except ValueError:
                 print("vous n'avez pas entrez un nombre correspondant")
                 self.choice_categorie = ""
-        #self.clear_menu()
+        self.clear_menu()
         if self.choice_categorie == 0:
             self.select_choice()
         elif self.choice_categorie in range(1, 10):
@@ -77,9 +75,9 @@ class Menu:
         while self.choice_alim is "":
             self.db.mycursor.execute(
                 "SELECT product.product_name FROM product\
-                INNER JOIN cat_product\
-                ON product.categories_id = cat_product.id\
-                WHERE cat_product.categories LIKE %s ORDER BY RAND() LIMIT 8",
+                INNER JOIN categories\
+                ON product.categories_id = categories.id\
+                WHERE categories.categories LIKE %s ORDER BY RAND() LIMIT 8",
                 (categories[str(self.choice_categorie)] + "%",))
             my_result = self.db.mycursor.fetchall()
             self.choice_list(my_result)
@@ -106,7 +104,7 @@ class Menu:
             print("entrez un nombre valide")
             self.select_alim = ""
             self.choice_list(result)
-        #self.clear_menu()
+        self.clear_menu()
         if self.choice_alim == 0:
             self.select_choice()
         elif self.choice_alim == 1:
@@ -120,9 +118,11 @@ class Menu:
     """We recover the choice of the list,
        we carry out a sql search and we display it"""
     def display_aliment(self,):
-        sql = "SELECT product.*, cat_product.Categories FROM product\
-            INNER JOIN cat_product\
-            ON cat_product.id = product.Categories_id\
+        sql = "SELECT product.*, categories.Categories, stores.store FROM product\
+            INNER JOIN categories\
+            ON categories.id = product.Categories_id\
+            INNER JOIN stores\
+            ON stores.id = product.stores_id\
             WHERE product_name = %s LIMIT 1"
         var = (self.list_aliment[self.choice_alim])
         self.db.mycursor.execute(sql, var,)
@@ -130,7 +130,7 @@ class Menu:
         for x in myresult:
             """ 1 for product name, 6 for URL,
                 2 for categories, 3 for nutriscore and 4 for brands"""
-            print(format_aliment.format(x[1], x[6], x[8], x[3], x[4]))
+            print(format_aliment.format(x[1], x[6], x[8], x[3], x[9]))
             try:
                 self.last_choice = int(input(input_to_aliment))
             except ValueError:
@@ -171,7 +171,7 @@ class Menu:
             print("entrez un mot valide")
             name_aliment = ""
             self.list_other_aliment()
-        #self.clear_menu()
+        self.clear_menu()
         # we research one aliment by name of research
         self.db.mycursor.execute("SELECT product_name\
             FROM product\
@@ -196,51 +196,48 @@ class Menu:
         """we search with a similar category but with a name
         and a different id and we take the best nutritiong_grade"""
         sql_substitute = "SELECT product_name, Nutrition_grade\
-        FROM product INNER JOIN cat_product\
-        ON product.Categories_id = cat_product.id\
-        WHERE cat_product.Categories = %s\
+        FROM product INNER JOIN categories\
+        ON product.Categories_id = categories.id\
+        WHERE categories.Categories = %s\
         AND product.id != %s AND product.product_name != %s\
         ORDER BY Nutrition_grade ASC LIMIT 1"
         val_substitute = (cat_modif, id_substitute, name_product)
         self.db.mycursor.execute(sql_substitute, val_substitute)
-        return self.db.mycursor.fetchall()
+        return self.db.mycursor.fetchone()
 
     def substitute(self,
                    categ_susbtitute,
                    id_substitute,
                    name_product,
                    nutriscore_product):
-        myresult = []
+        end_substitute = 1
+        myresult = None
         self.list_aliment[:] = []
         self.choice_alim = ""
-        nb = 1
         """ as myresult that will become equal to my cursor is equal
         to nothing, we do not stop the loop"""
-        while myresult == []:
+        while end_substitute:
+            nb = 1
             cat_modif = categ_susbtitute
-            myresult = self.research_sql_substitute(cat_modif,
-                                                    id_substitute,
-                                                    name_product,
-                                                    nutriscore_product)
-            if len(myresult) == 0 and nb < 11:
+            if cat_modif == "":
+                print("nous n'avons pas trouvé de meilleur aliment substitué")
+                end_substitute = 0
+                self.select_choice()
+            elif myresult is None or ord(myresult[1]) > ord(nutriscore_product):
                 list_substitute = cat_modif.split(", ")
                 del list_substitute[-nb:]
                 categ_susbtitute = ", ".join(list_substitute)
                 nb += 1
+                myresult = self.research_sql_substitute(cat_modif,
+                                                    id_substitute,
+                                                    name_product,
+                                                    nutriscore_product)
             # if we have one result , ok we can display our aliment
-            elif len(myresult) != 0:
+            elif ord(myresult[1]) <= ord(nutriscore_product):
                 print("voici un aliment substitué : ")
-                for x in myresult:
-                    x = list(x[:-1])
-                    x = tuple(x)
-                    self.list_aliment.append(x)
-                    self.choice_alim = 0
+                self.list_aliment.append(myresult[:-1])
+                self.choice_alim = 0
                 self.display_aliment()
-                break
-            """after 10 times, we do not have foods with categories
-            resembling the original one"""
-            if nb > 10:
-                print("nous n'avons pas trouvé d'aliment substitué")
                 break
 
 

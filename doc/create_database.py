@@ -119,7 +119,7 @@ def main():
     dbase.connect_with_user('StudentOF', '1Ksable$', 'openfoodfact')
     dbase.create_table()
     print("fermeture de la base de données")
-    dbase.exit_db()
+    dbase.exit_dbase()
 
 
 if __name__ == "__main__":

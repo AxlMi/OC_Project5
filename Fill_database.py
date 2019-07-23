@@ -8,9 +8,24 @@ import threading
 import os
 
 
-class DownloadApi:      
+class DownloadApi:
 
-    def downapi(self, start, end, nom):
+    def time_download(self, name, page):
+        # to indicate the time of download
+        if name == "Thread 1":
+            if os.name == "nt":
+                os.system("cls")
+            else:
+                os.system("clear")
+            print("chargement en cours {} %, veuillez patienter..".format((page*100/self.page_thread)))
+
+    def end_download(self, name):
+        # to indicate the end of download
+        if name == "Thread 1":
+            os.system("cls")
+            print("chargement terminé")
+
+    def downapi(self, start, end, name):
         db = Database()
         db.connect_with_user(
             user_acc="StudentOF",
@@ -26,69 +41,84 @@ class DownloadApi:
                             'countries': 'France',
                             'json': 1,
                             'page': i,
-                            'page_size': 1000
+                            'page_size': 100
                             })
-            # to indicate the time of download
-            if nom == "Thread 1":
-                if os.name == "nt":
-                    os.system("cls")
-                else:
-                    os.system("clear")
-                print("chargement en cours {} %, veuillez patienter..".format((i*100/self.page_thread)))
+            self.time_download(name, i)
             response = json.loads(products.text)
+            if len(response) == 0:
+                print("fin du telechargement")
+                break
             # this condition makes it possible not to take the empty informatio
             for product in response['products']:
                 if product.get("product_name") is not None\
                     and product.get("categories") is not None\
-                        and product.get("nutrition_grade_fr")\
-                        is not None and product.get("product_name")\
-                        != "" and product.get("categories") != ""\
-                        and product.get("nutrition_grade_fr") != "":
+                    and product.get("nutrition_grade_fr")\
+                    is not None and product.get("stores") is not None\
+                    and product.get('brands') is not None\
+                    and product.get("product_name") != ""\
+                    and product.get("categories") != ""\
+                    and product.get("nutrition_grade_fr") != ""\
+                    and product.get("stores") != ""\
+                    and product.get('brands') != "":
                     product_cat = product.get("categories")
                     product_cat = product_cat.split(",")
                     product_cat = ",".join(product_cat[:8])
-                    try:
-                        db.mycursor.execute("INSERT INTO cat_product (Categories)\
-                            VALUES (%s)", (product_cat, ))
-                        db.mydb.commit()
-                    except mysql.connector.errors.IntegrityError:
-                        pass
-                    except mysql.connector.errors.DataError:
-                        continue
-                    db.mycursor.execute("SELECT ID\
-                        FROM cat_product\
-                        WHERE Categories = %s", (product_cat, ))
-                    my_result = db.mycursor.fetchone()
+                    self.fill_table("categories", "Categories", product_cat)
+                    self.fill_table("brands", "brands", product.get('brands'))
+                    self.fill_table("stores", "store", product.get('stores'))
                     sql = """INSERT INTO product (
                         Product_name,
                         Categories_id,
                         Nutrition_grade,
-                        Brands,
-                        Stores,
+                        Brands_id,
+                        Stores_id,
                         url_product,
                         save_product) VALUES (%s, %s, %s, %s, %s, %s, 0)"""
                     val = (
                         product.get('product_name'),
-                        my_result[0],
+                        self.research_id("categories", "Categories", product_cat),
                         product.get('nutrition_grade_fr'),
-                        product.get('brands'),
-                        product.get('stores'),
+                        self.research_id("brands", "brands", product.get('brands')),
+                        self.research_id("stores", "store", product.get('stores')),
                         product['url'])
                     db.mycursor.execute(sql, val,)
                     db.mydb.commit()
-        # to indicate the end of download
-        if nom == "Thread 1":
-            os.system("cls")
-            print("chargement terminé")
-            db.mydb.close()
+        self.end_download(name)
+        db.mydb.close()
+
+    def research_id(self, table, column, value):
+        db = Database()
+        db.connect_with_user(
+            user_acc="StudentOF",
+            passw="1Ksable$",
+            db="openfoodfact")
+        try:
+            db.mycursor.execute("SELECT ID FROM " + table + " WHERE " + column + " = %s", (value, ))
+            my_result = db.mycursor.fetchone()
+            return my_result[0]
+        except TypeError:
+            pass
+
+    def fill_table(self, table, column, value):
+        db = Database()
+        db.connect_with_user(
+            user_acc="StudentOF",
+            passw="1Ksable$",
+            db="openfoodfact")
+        try:
+            db.mycursor.execute("INSERT INTO " + table + " (" + column + ") VALUE (%s)", (value, ))
+            db.mydb.commit()
+        except mysql.connector.errors.IntegrityError:
+            pass
+        except mysql.connector.errors.DataError:
+            pass
 
     """ this method will launch several threads to
         speed up the downloading of information.
         Need to indicate the number page at download
         and the number of threads you want to run"""
     def thread_api(self, number_page):
-        # choice the number of thread
-        nb_thread = 8
+        nb_thread = 5
         self.page_thread = int(number_page / nb_thread)
         index_start_thread = 0
         index_end_thread = self.page_thread
@@ -105,4 +135,4 @@ class DownloadApi:
 
 
 DAP = DownloadApi()
-DAP.thread_api(100)
+DAP.thread_api(1000)
