@@ -50,39 +50,39 @@ class DownloadApi:
                 break
             # this condition makes it possible not to take the empty informatio
             for product in response['products']:
-                if product.get("product_name") is not None\
-                    and product.get("categories") is not None\
-                    and product.get("nutrition_grade_fr")\
-                    is not None and product.get("stores") is not None\
-                    and product.get('brands') is not None\
-                    and product.get("product_name") != ""\
-                    and product.get("categories") != ""\
-                    and product.get("nutrition_grade_fr") != ""\
-                    and product.get("stores") != ""\
-                    and product.get('brands') != "":
-                    product_cat = product.get("categories")
-                    product_cat = product_cat.split(",")
-                    product_cat = ",".join(product_cat[:8])
-                    self.fill_table("categories", "Categories", product_cat)
-                    self.fill_table("brands", "brands", product.get('brands'))
+                if product.get("stores") is not None\
+                and product.get("stores") != "":
                     self.fill_table("stores", "store", product.get('stores'))
-                    sql = """INSERT INTO product (
-                        Product_name,
-                        Categories_id,
-                        Nutrition_grade,
-                        Brands_id,
-                        Stores_id,
-                        url_product,
-                        save_product) VALUES (%s, %s, %s, %s, %s, %s, 0)"""
-                    val = (
-                        product.get('product_name'),
-                        self.research_id("categories", "Categories", product_cat),
-                        product.get('nutrition_grade_fr'),
-                        self.research_id("brands", "brands", product.get('brands')),
-                        self.research_id("stores", "store", product.get('stores')),
-                        product['url'])
-                    db.mycursor.execute(sql, val,)
-                    db.mydb.commit()
+                    if product.get("brands") is not None\
+                    and product.get("brand") != "":
+                        self.fill_table("brands", "brands", product.get('brands'))
+                        if product.get("categories") is not None\
+                        and product.get("categories") != "":
+                            product_cat = product.get("categories")
+                            product_cat = product_cat.split(",")
+                            product_cat = ",".join(product_cat[:8])
+                            self.fill_table("categories", "Categories", product_cat)
+                            if product.get("product_name") is not None\
+                            and product.get("nutrition_grade_fr")\
+                            is not None and product.get("product_name") != ""\
+                            and product.get("nutrition_grade_fr") != "":       
+                                sql = """INSERT INTO product (
+                                    Product_name,
+                                    Categories_id,
+                                    Nutrition_grade,
+                                    Brands_id,
+                                    Stores_id,
+                                    url_product,
+                                    save_product) VALUES (%s, %s, %s, %s, %s, %s, 0)"""
+                                val = (
+                                    product.get('product_name'),
+                                    self.research_id("categories", "Categories", product_cat),
+                                    product.get('nutrition_grade_fr'),
+                                    self.research_id("brands", "brands", product.get('brands')),
+                                    self.research_id("stores", "store", product.get('stores')),
+                                    product['url'])
+                                db.mycursor.execute(sql, val,)
+                                db.mydb.commit()
         self.end_download(name)
         db.mydb.close()
 
@@ -118,7 +118,7 @@ class DownloadApi:
         Need to indicate the number page at download
         and the number of threads you want to run"""
     def thread_api(self, number_page):
-        nb_thread = 5
+        nb_thread = 4
         self.page_thread = int(number_page / nb_thread)
         index_start_thread = 0
         index_end_thread = self.page_thread
