@@ -198,10 +198,10 @@ class Menu:
         sql_substitute = "SELECT product_name, Nutrition_grade\
         FROM product INNER JOIN categories\
         ON product.Categories_id = categories.id\
-        WHERE categories.Categories = %s\
+        WHERE categories.Categories LIKE %s\
         AND product.id != %s AND product.product_name != %s\
         ORDER BY Nutrition_grade ASC LIMIT 1"
-        val_substitute = (cat_modif, id_substitute, name_product)
+        val_substitute = ("%"+cat_modif+"%", id_substitute, name_product)
         self.db.mycursor.execute(sql_substitute, val_substitute)
         return self.db.mycursor.fetchone()
 
@@ -219,11 +219,12 @@ class Menu:
         while end_substitute:
             nb = 1
             cat_modif = categ_susbtitute
+            print(cat_modif)
             if cat_modif == "":
                 print("nous n'avons pas trouvé de meilleur aliment substitué")
                 end_substitute = 0
                 self.select_choice()
-            elif myresult is None or ord(myresult[1]) > ord(nutriscore_product):
+            elif myresult is None or myresult[1] > nutriscore_product:
                 list_substitute = cat_modif.split(", ")
                 del list_substitute[-nb:]
                 categ_susbtitute = ", ".join(list_substitute)
@@ -233,7 +234,7 @@ class Menu:
                                                     name_product,
                                                     nutriscore_product)
             # if we have one result , ok we can display our aliment
-            elif ord(myresult[1]) <= ord(nutriscore_product):
+            elif myresult[1]<= nutriscore_product:
                 print("voici un aliment substitué : ")
                 self.list_aliment.append(myresult[:-1])
                 self.choice_alim = 0
