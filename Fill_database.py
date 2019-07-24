@@ -22,7 +22,10 @@ class DownloadApi:
     def end_download(self, name):
         # to indicate the end of download
         if name == "Thread 1":
-            os.system("cls")
+            if os.name == "nt":
+                os.system("cls")
+            else:
+                os.system("clear")
             print("chargement terminé")
 
     def downapi(self, start, end, name):
@@ -118,7 +121,7 @@ class DownloadApi:
         Need to indicate the number page at download
         and the number of threads you want to run"""
     def thread_api(self, number_page):
-        nb_thread = 4
+        nb_thread = 6
         self.page_thread = int(number_page / nb_thread)
         index_start_thread = 0
         index_end_thread = self.page_thread
@@ -135,4 +138,4 @@ class DownloadApi:
 
 
 DAP = DownloadApi()
-DAP.thread_api(500)
+DAP.thread_api(600)
